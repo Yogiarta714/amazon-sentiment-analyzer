@@ -60,7 +60,9 @@ user_input = st.text_area(
 
 tombol_analisis = st.button("Analisis Sentimen Ulasan")
 
-#  PIPELINE INFERENSI
+# ════════════════════════════════════════════════════════════════
+# PIPELINE INFERENSI
+# ════════════════════════════════════════════════════════════════
 if tombol_analisis:
     if user_input.strip() == "":
         st.warning("⚠️ Mohon ketikkan teks ulasan terlebih dahulu sebelum menekan tombol!")
@@ -112,3 +114,16 @@ if tombol_analisis:
                 log_tfidf_kata = [f"{feature_names[i]}: {vektor_tfidf[0, i]:.4f}" for i in non_zero_indices]
                 
                 st.info(f"**4. Nilai Fitur TF-IDF yang Terdeteksi:**\n{', '.join(log_tfidf_kata) if log_tfidf_kata else 'Tidak ada kata yang cocok dengan kamus kosa kata makanan pada model.'}")
+
+# ════════════════════════════════════════════════════════════════
+# FOOTER
+# ════════════════════════════════════════════════════════════════
+st.markdown("---")
+st.markdown(
+    "<div style='text-align: center; color: #6b7280;'>"
+    "<small>Kelompok 5 · Informatika Universitas Udayana · 2026 · "
+    "Dataset: Amazon Fine Food Reviews · Fitur: TF-IDF · "
+    "Model: Logistic Regression</small>"
+    "</div>",
+    unsafe_allow_html=True,
+)

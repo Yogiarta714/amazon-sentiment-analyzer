@@ -298,8 +298,8 @@ Teks diproses melalui lima tahap secara berurutan:
 | Stopword Removal | `buang_stopword()` | Filter stopword, pertahankan kata "not" |
 
 Hasil preprocessing menghasilkan **dua versi kolom teks**:
-- `final_with_stopwords` : teks tanpa cleaning stopword
-- `final_no_stopwords` : teks dengan stopword dihapus
+- `final_with_stopwords` : teks yang masih mengandung stopword (stopword tidak dihapus)
+- `final_no_stopwords`   : teks yang stopword-nya sudah dihapus
 
 ### 3. Representasi TF-IDF
 - Data dibagi menjadi **80% training** dan **20% testing** menggunakan `train_test_split` dengan `random_state=42`
