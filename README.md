@@ -407,7 +407,7 @@ File biner hasil serialisasi objek model Logistic Regression yang sudah dilatih.
 File biner hasil serialisasi objek TF-IDF Vectorizer yang sudah di-*fit* pada data training. Digunakan untuk mentransformasi teks baru menjadi vektor numerik yang konsisten dengan representasi saat pelatihan.
 
 ### `requirements.txt`
-Daftar seluruh library Python untuk menjalankan aplikasi. Install menggunakan `pip install -r requirements.txt`.
+Daftar seluruh library Python beserta versinya yang dibutuhkan untuk menjalankan aplikasi. Install menggunakan `pip install -r requirements.txt`.
 
 ---
 
