@@ -1,6 +1,7 @@
 import streamlit as st
 import pickle
 import numpy as np
+import os
 
 # IMPORT FUNGSI DARI FILE PREPROCESSING
 from preprocessing import download_nltk_resources, clean_text, word_tokenize, buang_stopword
@@ -34,10 +35,15 @@ download_nltk_resources()
 @st.cache_resource
 def load_machine_learning_assets():
     """Memuat model Logistic Regression dan objek TF-IDF Vectorizer"""
-    with open('logistic_regression_model.pickle', 'rb') as f:
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    model_path = os.path.join(current_dir, 'logistic_regression_model.pickle')
+    tfidf_path = os.path.join(current_dir, 'tfidf_vectorizer.pickle')
+
+    with open(model_path, 'rb') as f:
         model = pickle.load(f)
         
-    with open('tfidf_vectorizer.pickle', 'rb') as f:
+    with open(tfidf_path, 'rb') as f:
         tfidf = pickle.load(f)
         
     return model, tfidf
