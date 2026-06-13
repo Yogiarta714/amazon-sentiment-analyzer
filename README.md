@@ -65,7 +65,7 @@ Aplikasi akan menampilkan:
 | Atribut | Detail |
 |---|---|
 | **Nama** | Amazon Fine Food Reviews |
-| **Sumber** | [Kaggle : SNAP Stanford](https://www.kaggle.com/datasets/snap/amazon-fine-food-reviews) |
+| **Sumber** | [Kaggle — SNAP Stanford](https://www.kaggle.com/datasets/snap/amazon-fine-food-reviews) |
 | **File** | `Reviews.csv` |
 | **Jumlah Data** | ± 568.454 ulasan |
 | **Rentang Waktu** | Oktober 1999 – Oktober 2012 |
