@@ -31,7 +31,7 @@ Proyek ini terdiri dari dua bagian utama:
 1. **Notebook pelatihan** (`sentiment-analyzer.ipynb`) : proses eksplorasi data, preprocessing, pelatihan model, dan evaluasi yang dijalankan di Google Colab.
 2. **Web App Streamlit** (`app.py`) : antarmuka pengguna interaktif yang menggunakan model hasil pelatihan untuk melakukan prediksi secara real-time.
 
-Model dilatih menggunakan algoritma **Logistic Regression** dengan representasi teks berbasis **TF-IDF (Term Frequency-Inverse Document Frequency)**, dan dilakukan eksperimen perbandingan antara model **dengan stopword** dan **tanpa stopword** untuk menemukan konfigurasi terbaik.
+Model yang digunakan adalah hasil eksperimen **Model 1** (data imbalance tanpa perlakuan khusus), dilatih menggunakan algoritma **Logistic Regression** dengan representasi teks berbasis **TF-IDF** pada data yang masih mengandung stopword.
 
 ---
 
@@ -39,8 +39,8 @@ Model dilatih menggunakan algoritma **Logistic Regression** dengan representasi 
 
 1. **Mengklasifikasikan sentimen** ulasan makanan/minuman secara otomatis (positif atau negatif).
 2. **Membandingkan pengaruh stopword removal** terhadap performa model Logistic Regression.
-3. **Menerapkan pipeline NLP** lengkap mulai dari data mentah hingga prediksi model.
-4. **Memberikan transparansi** kepada pengguna dengan menampilkan setiap tahapan pemrosesan teks secara detail (Pipeline Log).
+3. **Menerapkan pipeline NLP** mulai dari data mentah hingga prediksi model.
+4. **Memberikan transparansi** kepada pengguna dengan menampilkan tahapan pemrosesan teks secara detail (Pipeline Log).
 5. **Menyediakan antarmuka yang ramah pengguna** melalui web app interaktif berbasis Streamlit.
 
 ---
@@ -65,7 +65,7 @@ Aplikasi akan menampilkan:
 | Atribut | Detail |
 |---|---|
 | **Nama** | Amazon Fine Food Reviews |
-| **Sumber** | [Kaggle — SNAP Stanford](https://www.kaggle.com/datasets/snap/amazon-fine-food-reviews) |
+| **Sumber** | [Kaggle : SNAP Stanford](https://www.kaggle.com/datasets/snap/amazon-fine-food-reviews) |
 | **File** | `Reviews.csv` |
 | **Jumlah Data** | ± 568.454 ulasan |
 | **Rentang Waktu** | Oktober 1999 – Oktober 2012 |
@@ -127,8 +127,7 @@ Reviews.csv (Dataset Mentah)
 8. Logistic Regression  → Latih 2 model (dengan & tanpa stopword)
         │
         ▼
-9. Evaluasi             → Akurasi, Classification Report, Confusion Matrix,
-                          Analisis Bobot Kata
+9. Evaluasi             → Akurasi, Classification Report, Confusion Matrix, Analisis Bobot Kata
         │
         ▼
 10. Simpan Model Terbaik → logistic_regression_model.pickle
@@ -141,10 +140,13 @@ Reviews.csv (Dataset Mentah)
 Input Teks Pengguna
         │
         ▼
-1. Case Folding  →  2. Cleaning  →  3. Tokenisasi  →  4. Stopword Removal
+1. Case Folding & Text Cleaning  →  Hapus noise, konversi lowercase
         │
         ▼
-5. TF-IDF Transform  →  6. Logistic Regression  →  Output Prediksi
+2. TF-IDF Transform  →  Ubah teks menjadi vektor numerik
+        │
+        ▼
+3. Logistic Regression  →  Output Prediksi + Probabilitas
 ```
 
 ---
@@ -157,10 +159,9 @@ Input Teks Pengguna
  ┣ 📄 requirements.txt                 # Daftar dependensi library Python
  ┣ 📄 README.md                        # Dokumentasi proyek
  ┗ 📦 sentiment-analyzer-app/
-    ┣ 📄 app.py                            # File utama aplikasi web Streamlit
-    ┣ 📄 preprocessing.py                  # Modul fungsi preprocessing teks (reusable)
-    ┣ 📄 logistic_regression_model.pickle  # Model Logistic Regression hasil training (pre-trained)
-    ┗ 📄 tfidf_vectorizer.pickle           # Objek TF-IDF Vectorizer hasil fitting (pre-trained)
+    ┣ 📄 app.py                           # File utama aplikasi web Streamlit
+    ┣ 📄 logistic_regression_model.pickle # Model Logistic Regression hasil training (pre-trained)
+    ┗ 📄 tfidf_vectorizer.pickle          # Objek TF-IDF Vectorizer hasil fitting (pre-trained)
 ```
 
 > **Catatan:** File `.pickle` merupakan model yang sudah dilatih sebelumnya. File ini wajib tersedia di dalam folder `sentiment-analyzer-app/` agar aplikasi dapat berjalan. Dataset `Reviews.csv` **tidak disertakan** dalam repositori karena ukurannya yang besar, unduh secara mandiri dari Kaggle (lihat bagian [Dataset](#-dataset)).
@@ -175,27 +176,20 @@ Input Teks Pengguna
 |---|---|
 | `streamlit` | Framework web app interaktif berbasis Python |
 | `scikit-learn` | Logistic Regression & TF-IDF Vectorizer |
-| `nltk` | Tokenisasi & stopword removal |
 | `numpy` | Operasi array numerik |
 | `pickle` *(built-in)* | Serialisasi dan deserialisasi model ML |
 | `re` *(built-in)* | Regular expression untuk text cleaning |
+| `os` *(built-in)* | Manajemen path file model |
 
 ### Library Tambahan (Notebook / Training)
 
 | Library | Kegunaan |
 |---|---|
 | `pandas` | Manipulasi dan analisis dataframe |
+| `nltk` | Tokenisasi & stopword removal |
 | `matplotlib` | Visualisasi grafik dan plot |
 | `seaborn` | Visualisasi heatmap confusion matrix |
 | `google.colab` | Mount Google Drive di lingkungan Colab |
-
-### Resource NLTK (Diunduh Otomatis)
-
-| Resource | Kegunaan |
-|---|---|
-| `punkt` | Tokenizer berbasis bahasa |
-| `punkt_tab` | Tokenizer tabel (versi terbaru NLTK) |
-| `stopwords` | Daftar kata umum bahasa Inggris |
 
 ---
 
@@ -240,8 +234,6 @@ pip install -r requirements.txt
 Pastikan kedua file berikut sudah ada di dalam folder `sentiment-analyzer-app/`:
 - `logistic_regression_model.pickle`
 - `tfidf_vectorizer.pickle`
-
-> Resource NLTK (`punkt`, `stopwords`) akan **diunduh otomatis** saat aplikasi pertama kali dijalankan.
 
 ---
 
@@ -299,24 +291,24 @@ Teks diproses melalui lima tahap secara berurutan:
 
 Hasil preprocessing menghasilkan **dua versi kolom teks**:
 - `final_with_stopwords` : teks yang masih mengandung stopword (stopword tidak dihapus)
-- `final_no_stopwords`   : teks yang stopword-nya sudah dihapus
+- `final_no_stopwords` : teks yang stopword-nya sudah dihapus
 
 ### 3. Representasi TF-IDF
 - Data dibagi menjadi **80% training** dan **20% testing** menggunakan `train_test_split` dengan `random_state=42`
 - `TfidfVectorizer` di-*fit* pada data training dan digunakan untuk mentransformasi data training maupun testing
 - Dua vectorizer dibuat secara terpisah untuk masing-masing versi (dengan/tanpa stopword)
-- Contoh representasi TF-IDF untuk satu review ditampilkan secara detail (kata + nilai bobot)
 
 ### 4. Machine Learning — Logistic Regression
 - **Pelatihan:** Dua model `LogisticRegression(max_iter=1000)` dilatih secara terpisah
-- **Evaluasi:** Akurasi, `classification_report` (precision, recall, F1-score), dan confusion matrix ditampilkan untuk kedua model
-- **Analisis Bobot:** 10 kata dengan bobot tertinggi (mendorong ke sentimen positif) dan 10 kata dengan bobot terendah (mendorong ke sentimen negatif) dianalisis untuk interpretasi model
+- **Evaluasi:** Akurasi, `classification_report` (precision, recall, F1-score), confusion matrix, dan ROC-AUC ditampilkan untuk kedua model
+- **Analisis Bobot:** Kata-kata dengan bobot tertinggi (positif) dan terendah (negatif) dianalisis untuk interpretasi model
+- **Model terpilih** adalah Model 1 (dengan stopword, tanpa perlakuan imbalance) yang kemudian disimpan sebagai model produksi
 
 ---
 
 ## 🔬 Penjelasan Pipeline Preprocessing
 
-Pipeline preprocessing diimplementasikan dalam `preprocessing.py` dan terdiri dari tahap berikut:
+Pipeline preprocessing pada aplikasi diimplementasikan langsung di dalam `app.py` dan terdiri dari dua tahap:
 
 ### 1. Case Folding
 Mengubah seluruh karakter teks menjadi huruf kecil agar kata yang sama dengan kapitalisasi berbeda dianggap identik.
@@ -333,24 +325,10 @@ Membersihkan teks dari noise menggunakan Regular Expression (Regex):
 - Menghapus spasi berlebih
 
 ```
-"Check http://amzn.com @seller #review! 5 stars!!" → "Check seller review stars"
+"Check http://amzn.com @seller #review! 5 stars!!" → "check seller review stars"
 ```
 
-### 3. Tokenisasi (`word_tokenize`)
-Memecah string teks menjadi daftar token (kata) menggunakan NLTK `word_tokenize`.
-```
-"this coffee is great" → ["this", "coffee", "is", "great"]
-```
-
-### 4. Stopword Removal (`buang_stopword`)
-Menghapus kata-kata umum yang tidak membawa makna signifikan menggunakan daftar stopword bahasa Inggris dari NLTK.
-
-> ⚠️ **Perhatian khusus:** Kata **"not"** sengaja **dipertahankan** karena sangat krusial dalam menentukan polaritas sentimen. Contoh: *"not good"* berbeda makna dengan *"good"*.
-
-```
-["this", "coffee", "is", "great"]       → ["coffee", "great"]
-["this", "product", "is", "not", "good"] → ["product", "not", "good"]
-```
+> **Catatan:** Aplikasi tidak melakukan tokenisasi maupun stopword removal karena model yang digunakan (Model 1) dilatih pada data yang masih mengandung stopword. Pipeline inferensi di aplikasi disesuaikan agar konsisten dengan pipeline saat pelatihan.
 
 ---
 
@@ -363,7 +341,7 @@ Menghapus kata-kata umum yang tidak membawa makna signifikan menggunakan daftar 
 - **IDF (Inverse Document Frequency):** penalti untuk kata yang muncul di hampir semua dokumen
 
 ### Logistic Regression
-Model klasifikasi biner yang memprediksi probabilitas sentimen. Konfigurasi yang digunakan: `LogisticRegression(max_iter=1000)`.
+Model klasifikasi biner yang memprediksi probabilitas sentimen. Konfigurasi yang digunakan: `LogisticRegression(max_iter=1000, random_state=42)`.
 
 | Probabilitas | Label | Output |
 |---|---|---|
@@ -378,10 +356,8 @@ Notebook melakukan eksperimen untuk membandingkan dua konfigurasi:
 
 | Konfigurasi | Deskripsi |
 |---|---|
-| Model A | Logistic Regression + TF-IDF **dengan** stopword |
-| Model B | Logistic Regression + TF-IDF **tanpa** stopword |
-
-Hasil evaluasi kedua model dibandingkan menggunakan akurasi, precision, recall, F1-score, dan confusion matrix untuk menentukan model mana yang lebih baik dan akhirnya disimpan sebagai model produksi.
+| Model 1 ✅ | Logistic Regression + TF-IDF **dengan stopword** (tanpa perlakuan imbalance) — **digunakan di aplikasi** |
+| Model 2 | Logistic Regression + TF-IDF **tanpa stopword** |
 
 ---
 
@@ -391,14 +367,7 @@ Hasil evaluasi kedua model dibandingkan menggunakan akurasi, precision, recall, 
 Notebook Google Colab yang berisi seluruh proses dari awal hingga model siap digunakan: eksplorasi data, labeling, preprocessing, splitting, TF-IDF, pelatihan, evaluasi, analisis bobot kata, dan penyimpanan model ke file `.pickle`.
 
 ### `app.py`
-File utama aplikasi Streamlit. Bertanggung jawab atas konfigurasi halaman, pemuatan model dari file `.pickle`, penerimaan input pengguna, pemanggilan fungsi preprocessing, prediksi, dan penampilan hasil beserta pipeline log.
-
-### `preprocessing.py`
-Modul Python reusable yang berisi fungsi-fungsi preprocessing teks:
-- `download_nltk_resources()` : mengunduh resource NLTK secara otomatis jika belum tersedia
-- `clean_text(text)` : membersihkan teks dari noise menggunakan regex
-- `word_tokenize(text)` : tokenisasi teks (diimpor dari NLTK)
-- `buang_stopword(tokens)` : menghapus stopword kecuali kata "not"
+File utama aplikasi Streamlit. Berisi konfigurasi halaman, fungsi `clean_text` untuk preprocessing, pemuatan model dari file `.pickle`, penerimaan input pengguna, pipeline inferensi, prediksi, dan penampilan hasil beserta pipeline log.
 
 ### `logistic_regression_model.pickle`
 File biner hasil serialisasi objek model Logistic Regression yang sudah dilatih. Dimuat menggunakan `pickle.load()` saat aplikasi pertama kali dijalankan.
@@ -407,7 +376,7 @@ File biner hasil serialisasi objek model Logistic Regression yang sudah dilatih.
 File biner hasil serialisasi objek TF-IDF Vectorizer yang sudah di-*fit* pada data training. Digunakan untuk mentransformasi teks baru menjadi vektor numerik yang konsisten dengan representasi saat pelatihan.
 
 ### `requirements.txt`
-Daftar seluruh library Python beserta versinya yang dibutuhkan untuk menjalankan aplikasi. Install menggunakan `pip install -r requirements.txt`.
+Daftar seluruh library Python yang dibutuhkan untuk menjalankan aplikasi. Install menggunakan `pip install -r requirements.txt`.
 
 ---
 
